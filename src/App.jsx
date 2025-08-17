@@ -8,7 +8,7 @@ function App() {
 
   const handleGenerateTicket = (data) => {
     setTicketData(data);
-    showTicket(true);
+    setShowTicket(true);
   };
 
   return (
