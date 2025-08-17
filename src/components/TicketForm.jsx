@@ -71,6 +71,18 @@ function TicketForm({ onGenerateTicket }) {
     };
 
     reader.readAsDataURL(file);
+
+    /* FileReader API => Converts file → Base64-encoded string (data URL).
+    example: data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA...
+
+    reader.onload callback, When file is fully read: Store the Base64 result in your form state:
+
+    reader.readAsDataURL(file) => Actually starts reading the file as a data URL.
+
+    ?. (optional chaining) → prevents errors if e.target is null or undefined.
+    => If e.target exists → returns e.target.result.
+    => If not → returns undefined instead of crashing.
+    */
   };
 
   return (
@@ -121,7 +133,7 @@ function TicketForm({ onGenerateTicket }) {
                 <img
                   src={formData.avatar}
                   alt={formData.fullName}
-                  className="w-16 h-16 rounded-full object-cover mb-2"
+                  className="w-16 h-16 rounded-full object-cover mb-2 shadow-md hover:shadow-xl transform hover:scale-105 transition-transform duration-200 ease-in-out"
                 />
                 <p>Click to Change</p>
               </div>
@@ -133,17 +145,26 @@ function TicketForm({ onGenerateTicket }) {
                 <p className="text-gray-300 text-sm mb-1">Click to Upload</p>
               </div>
             )}
+          </div>
 
-            {/* message */}
-            <p className="text-gray-400 text-xs mt-2 flex items-center">
+          {/* message */}
+          {errors.avatar ? (
+            <p className="text-red-400 text-sm font-normal -mt-3">
+              {errors.avatar}
+            </p>
+          ) : (
+            <p className="text-gray-400 text-xs font-medium flex items-center -mt-3">
               Upload your photo (JPG or PNG, max size: 500KB)
             </p>
+          )}
+          {/* <p className="text-gray-400 text-xs flex items-center">
+            Upload your photo (JPG or PNG, max size: 500KB)
+          </p>
 
-            {errors.avatar && (
-              <p className="text-red-400 text-sm mt-1">{errors.avatar}</p>
-            )}
-            {/* message */}
-          </div>
+          {errors.avatar && (
+            <p className="text-red-400 text-sm">{errors.avatar}</p>
+          )} */}
+          {/* message */}
           {/* file upload */}
 
           {/* full name */}
@@ -171,7 +192,9 @@ function TicketForm({ onGenerateTicket }) {
 
             {/* error message */}
             {errors.fullName && (
-              <p className="text-red-400 text-sm mt-1">{errors.fullName}</p>
+              <p className="text-red-400 text-sm font-normal mt-1">
+                {errors.fullName}
+              </p>
             )}
             {/* error message */}
           </div>
@@ -202,7 +225,9 @@ function TicketForm({ onGenerateTicket }) {
 
             {/* error message */}
             {errors.email && (
-              <p className="text-red-400 text-sm mt-1">{errors.email}</p>
+              <p className="text-red-400 text-sm font-normal mt-1">
+                {errors.email}
+              </p>
             )}
             {/* error message */}
           </div>
@@ -233,7 +258,7 @@ function TicketForm({ onGenerateTicket }) {
 
             {/* error message */}
             {errors.githubUsername && (
-              <p className="text-red-400 text-sm mt-1">
+              <p className="text-red-400 text-sm font-normal mt-1">
                 {errors.githubUsername}
               </p>
             )}
