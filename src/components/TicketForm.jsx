@@ -1,6 +1,78 @@
 import { Code2, Github, Mail, Upload, User } from "lucide-react";
+import { useRef, useState } from "react";
 
-function TicketForm() {
+function TicketForm({ onGenerateTicket }) {
+  const [formData, setFormdata] = useState({
+    fullName: "",
+    email: "",
+    githubUsername: "",
+    avatar: "",
+  });
+
+  const [errors, setErrors] = useState({});
+  const fileInputRef = useRef();
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+
+    setFormdata((prev) => ({ ...prev, [name]: value }));
+
+    if (errors[name]) {
+      setErrors((prev) => ({ ...prev, [name]: undefined }));
+    }
+  };
+
+  const validateForm = () => {
+    const newErrors = {};
+
+    if (!formData.fullName.trim()) {
+      newErrors.fullName = "Full Name is required";
+    }
+
+    if (!formData.email.trim()) {
+      newErrors.email = "Email is required";
+    } else if (!/\s+@\s+\.\s+/.test(formData.email)) {
+      newErrors.email = "Email is invalid";
+    }
+
+    if (!formData.githubUsername.trim()) {
+      newErrors.githubUsername = "Github Username is required";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+    /* Object.keys(newErrors) => Extracts the field names that have errors.
+    
+    .length === 0 => Checks if there are no errors. If length === 0, the form is valid.
+
+    Return value => true → no errors (form valid, safe to submit). false → at least one error (form invalid, block submission).
+    */
+  };
+
+  const handleFileSelect = (e) => {
+    if (e.target.files && e.target.files[0]) {
+      handleFile(e.target.files[0]);
+    }
+  };
+
+  const handleFile = (file) => {
+    if (file.size > 500000) {
+      setErrors((prev) => ({
+        ...prev,
+        avatar: "File size must be less than 500 KB",
+      }));
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      setFormdata((prev) => ({ ...prev, avatar: e.target?.result }));
+      setErrors((prev) => ({ ...prev, avatar: undefined }));
+    };
+
+    reader.readAsDataURL(file);
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
       <div className="w-full max-w-md">
@@ -33,37 +105,43 @@ function TicketForm() {
 
           <div
             className={`relative border-2 border-dashed rounded-lg p-6 text-center transition-all duration-200 cursor-pointer`}
+            onClick={() => fileInputRef.current?.click()}
           >
-            <input type="file" className="hidden" />
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleFileSelect}
+              accept="images/*"
+              className="hidden"
+            />
 
             {/* conditional  rendering */}
-
-            <div className="flex flex-col  items-center">
-              <img
-                src=""
-                alt=""
-                className="w-16 h-16 rounded-full object-cover mb-2"
-              />
-              <p>Click to Change</p>
-            </div>
-
-            {/* else */}
-            <div className="flex flex-col items-center">
-              <div className="bg-gray-700 p-3 rounded-full mb-3 mt-2 shadow-md hover:shadow-xl transform hover:scale-105 transition-transform duration-200">
-                <Upload className="w-6 h-6 text-gray-400" />
+            {formData.avatar ? (
+              <div className="flex flex-col  items-center">
+                <img
+                  src={formData.avatar}
+                  alt={formData.fullName}
+                  className="w-16 h-16 rounded-full object-cover mb-2"
+                />
+                <p>Click to Change</p>
               </div>
-              <p className="text-gray-300 text-sm mb-1">Click to Upload</p>
-            </div>
-            {/* else */}
+            ) : (
+              <div className="flex flex-col items-center">
+                <div className="bg-gray-700 p-3 rounded-full mb-3 mt-2 shadow-md hover:shadow-xl transform hover:scale-105 transition-transform duration-200">
+                  <Upload className="w-6 h-6 text-gray-400" />
+                </div>
+                <p className="text-gray-300 text-sm mb-1">Click to Upload</p>
+              </div>
+            )}
 
             {/* message */}
             <p className="text-gray-400 text-xs mt-2 flex items-center">
               Upload your photo (JPG or PNG, max size: 500KB)
             </p>
 
-            {/* error message */}
-            <p className="text-red-400 text-sm mt-1"></p>
-            {/* error message */}
+            {errors.avatar && (
+              <p className="text-red-400 text-sm mt-1">{errors.avatar}</p>
+            )}
             {/* message */}
           </div>
           {/* file upload */}
@@ -85,12 +163,16 @@ function TicketForm() {
                 id="fullName"
                 name="fullName"
                 placeholder="Enter Your Full Name"
+                value={formData.fullName}
+                onChange={handleInputChange}
                 className={`w-full py-3 pl-10 pr-4 bg-gray-800/50 text-white placeholder-gray-400 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200`}
               />
             </div>
 
             {/* error message */}
-            <p className="text-red-400 text-sm mt-1"></p>
+            {errors.fullName && (
+              <p className="text-red-400 text-sm mt-1">{errors.fullName}</p>
+            )}
             {/* error message */}
           </div>
           {/* full name */}
@@ -112,12 +194,16 @@ function TicketForm() {
                 id="email"
                 name="email"
                 placeholder="Enter Your Email Address"
+                value={formData.email}
+                onChange={handleInputChange}
                 className={`w-full py-3 pl-10 pr-4 bg-gray-800/50 text-white placeholder-gray-400 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200`}
               />
             </div>
 
             {/* error message */}
-            <p className="text-red-400 text-sm mt-1"></p>
+            {errors.email && (
+              <p className="text-red-400 text-sm mt-1">{errors.email}</p>
+            )}
             {/* error message */}
           </div>
           {/* email address */}
@@ -139,12 +225,18 @@ function TicketForm() {
                 id="githubUsername"
                 name="githubUsername"
                 placeholder="@yourUsername"
+                value={formData.githubUsername}
+                onChange={handleInputChange}
                 className={`w-full py-3 pl-10 pr-4 bg-gray-800/50 text-white placeholder-gray-400 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200`}
               />
             </div>
 
             {/* error message */}
-            <p className="text-red-400 text-sm mt-1"></p>
+            {errors.githubUsername && (
+              <p className="text-red-400 text-sm mt-1">
+                {errors.githubUsername}
+              </p>
+            )}
             {/* error message */}
           </div>
           {/* github username */}

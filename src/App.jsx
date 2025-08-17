@@ -1,15 +1,22 @@
+import { useState } from "react";
 import TicketDisplay from "./components/TicketDisplay";
 import TicketForm from "./components/TicketForm";
 
 function App() {
+  const [ticketData, setTicketData] = useState(null);
+  const [showTicket, setShowTicket] = useState(false);
+
+  const handleGenerateTicket = (data) => {
+    setTicketData(data);
+    showTicket(true);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-r from-slate-900 via-purple-900 to-slate-900 relative overflow-hidden">
       {/* background */}
       <div className="absolute inset-0">
         <div className="absolute top-20 right-20 w-96 h-96 bg-gradient-to-r from-orange-500/10 to-purple-500/10 rounded-full blur-3xl"></div>
-
         <div className="absolute bottom-20 left-20 w-80 h-80 bg-gradient-to-r from-purple-500/10 to-pink-500/10 rounded-full blur-3xl"></div>
-
         <div className="absolute top-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-r from-blue-500/50 to-purple-500/50 rounded-full blur-3xl"></div>
       </div>
       {/* background */}
@@ -18,8 +25,11 @@ function App() {
       {/* grid pattern overlay */}
 
       <div className="relative z-10">
-        {/* <TicketForm /> */}
-        <TicketDisplay />
+        {!showTicket ? (
+          <TicketForm onGenerateTicket={handleGenerateTicket} />
+        ) : (
+          <TicketDisplay />
+        )}
       </div>
     </div>
   );
