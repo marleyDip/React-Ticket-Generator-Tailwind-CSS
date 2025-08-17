@@ -1,3 +1,4 @@
+import TicketDisplay from "./components/TicketDisplay";
 import TicketForm from "./components/TicketForm";
 
 function App() {
@@ -17,7 +18,8 @@ function App() {
       {/* grid pattern overlay */}
 
       <div className="relative z-10">
-        <TicketForm />
+        {/* <TicketForm /> */}
+        <TicketDisplay />
       </div>
     </div>
   );
