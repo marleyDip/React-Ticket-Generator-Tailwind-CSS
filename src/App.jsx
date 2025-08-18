@@ -11,6 +11,11 @@ function App() {
     setShowTicket(true);
   };
 
+  const handleBackForm = () => {
+    setTicketData(null);
+    setShowTicket(false);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-r from-slate-900 via-purple-900 to-slate-900 relative overflow-hidden">
       {/* background */}
@@ -28,7 +33,7 @@ function App() {
         {!showTicket ? (
           <TicketForm onGenerateTicket={handleGenerateTicket} />
         ) : (
-          <TicketDisplay />
+          <TicketDisplay ticketData={ticketData} onBack={handleBackForm} />
         )}
       </div>
     </div>

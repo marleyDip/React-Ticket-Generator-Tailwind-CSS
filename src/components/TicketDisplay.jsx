@@ -1,3 +1,5 @@
+import { toPng } from "html-to-image";
+
 import {
   ArrowLeft,
   Calendar,
@@ -11,25 +13,90 @@ import {
   TimerIcon,
 } from "lucide-react";
 
-function TicketDisplay() {
+function TicketDisplay({ ticketData, onBack }) {
+  /* toString(36) => 0–9 + a–z 
+  .substr(2, 9) => Skips the "0." at the start and takes the next 9 characters */
+  const ticketID = `CC2025-${Math.random()
+    .toString(36)
+    .substr(2, 9)
+    .toUpperCase()}`;
+
+  const handlePrint = () => {
+    window.print();
+  };
+
+  const handleDownload = async () => {
+    const ticketElement = document.getElementById("conference-ticket");
+    if (!ticketElement) return;
+
+    try {
+      const dataUrl = await toPng(ticketElement, {
+        quality: 0.95,
+      });
+
+      const link = document.createElement("a");
+      link.href = dataUrl;
+
+      link.download = `Coding-Conference-2025-Ticket ${ticketData.fullName
+        .replace(/\s+/g, "-")
+        .toLowerCase()}.png`;
+
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      /* const link = document.createElement("a");
+      link.href = dataUrl;
+      link.download = "ticket.png";
+      link.click(); */
+    } catch (error) {
+      console.error("Something went wrong", error);
+    }
+  };
+
+  /* 
+    Generate PNG → toPng converts the ticket element to a Base64 PNG image.
+    Create a link → document.createElement("a") creates a hidden anchor.
+    Set download file name → using ticketData.fullName with spaces replaced by -.Click programmatically → triggers a download without user interaction.
+    Clean up → removes the link from the DOM after use. 
+  */
+
+  /* /\s+/g:
+  => \s → matches any whitespace (space, tab, newline).
+  => + → means "one or more".
+  => g → global flag, replaces all occurrences (not just the first).
+  
+  So every sequence of spaces in fullName becomes a single -. 
+  "John Doe Smith" => "John-Doe-Smith"
+  */
+
   return (
     <>
       <div className="min-h-screen flex items-center justify-center p-4">
         <div className="w-full max-w-4xl">
           {/* button */}
           <div className="flex items-center justify-between mb-8">
-            <button className="group flex items-center text-white hover:text-orange-400 transform hover:-translate-x-1 transition-all duration-200">
+            <button
+              className="group flex items-center text-white hover:text-orange-400 transform hover:-translate-x-1 transition-all duration-200 cursor-pointer"
+              onClick={onBack}
+            >
               <ArrowLeft className="w-5 h-5 mr-2 transform group-hover:rotate-180 transition-transform duration-200 ease-out" />
               Back to Form
             </button>
 
             <div className="flex space-x-4">
-              <button className="group flex items-center px-4 py-2 font-semibold text-white rounded-lg shadow-md hover:shadow-lg bg-gradient-to-l from-rose-600 hover:from-rose-700 to-sky-600 hover:to-sky-700 hover:bg-gray-700 transform hover:scale-105 hover:-translate-x-0.5 transition-all duration-200">
+              <button
+                className="group flex items-center px-4 py-2 font-semibold text-white rounded-lg shadow-md hover:shadow-lg bg-gradient-to-l from-rose-600 hover:from-rose-700 to-sky-600 hover:to-sky-700 hover:bg-gray-700 transform hover:scale-105 hover:-translate-x-0.5 transition-all duration-200 cursor-pointer"
+                onClick={handlePrint}
+              >
                 <Printer className="w-4 h-4 mr-2 transform group-hover:-rotate-[360deg] transition-transform duration-200 ease-in" />
                 Print
               </button>
 
-              <button className="group flex items-center px-4 py-2 text-white font-semibold rounded-lg shadow-md hover:shadow-lg bg-gradient-to-r from-sky-600 hover:from-sky-700 to-lime-600 hover:to-lime-700 hover:bg-gray-700 transform hover:scale-105 hover:translate-x-0.5 transition-all duration-200">
+              <button
+                className="group flex items-center px-4 py-2 text-white font-semibold rounded-lg shadow-md hover:shadow-lg bg-gradient-to-r from-sky-600 hover:from-sky-700 to-lime-600 hover:to-lime-700 hover:bg-gray-700 transform hover:scale-105 hover:translate-x-0.5 transition-all duration-200 cursor-pointer"
+                onClick={handleDownload}
+              >
                 <Download className="w-4 h-4 mr-2 transform group-hover:rotate-[360deg] transition-transform duration-200 ease-out" />
                 Download
               </button>
@@ -38,7 +105,10 @@ function TicketDisplay() {
           {/* button */}
 
           {/* ticket */}
-          <div className="bg-white rounded-2xl shadow-2xl print:shadow-none overflow-hidden ">
+          <div
+            id="conference-ticket"
+            className="bg-white rounded-2xl shadow-2xl print:shadow-none overflow-hidden "
+          >
             <div className="relative">
               {/* header */}
               <div className="bg-gradient-to-r from-slate-900 via-purple-900 to-slate-900 p-8 text-white relative overflow-hidden">
@@ -72,7 +142,7 @@ function TicketDisplay() {
                     <div className="text-right space-y-2">
                       <p className="text-gray-300 text-sm">Ticket ID</p>
 
-                      <p className="font-mono text-sm">Ticket Number</p>
+                      <p className="font-mono text-sm">{ticketID}</p>
                     </div>
                     {/* info */}
                   </div>
@@ -112,31 +182,32 @@ function TicketDisplay() {
                   <div className="flex items-center mb-6 md:mb-0">
                     <div className="mr-6">
                       {/* conditional rendering */}
-                      <img
-                        src=""
-                        alt=""
-                        className="w-20 h-20 rounded-full object-cover border-4 border-gray-200"
-                      />
-
-                      {/* else */}
-                      <div className="w-20 h-20 text-2xl  font-bold text-white flex items-center  justify-center rounded-full bg-gradient-to-r from-purple-500 to-pink-500"></div>
+                      {ticketData.avatar ? (
+                        <img
+                          src={ticketData.avatar}
+                          alt={ticketData.fullName}
+                          className="w-20 h-20 rounded-full object-cover border-4 border-gray-200"
+                        />
+                      ) : (
+                        <div className="w-20 h-20 text-2xl  font-bold text-white flex items-center  justify-center rounded-full bg-gradient-to-r from-purple-500 to-pink-500"></div>
+                      )}
                     </div>
 
                     {/* info */}
                     <div>
                       <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                        Full Name
+                        {ticketData.fullName}
                       </h2>
 
                       <div className="space-y-1">
                         <div className="flex items-center text-gray-600">
                           <Mail className="w-4 h-4 mr-2" />
-                          <span>Email</span>
+                          <span>{ticketData.email}</span>
                         </div>
 
                         <div className="flex items-center text-gray-600">
                           <Github className="w-4 h-4 mr-2" />
-                          <span>github username</span>
+                          <span>{ticketData.githubUsername}</span>
                         </div>
                       </div>
 
