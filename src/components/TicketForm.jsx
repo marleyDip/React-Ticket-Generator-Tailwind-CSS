@@ -41,10 +41,9 @@ function TicketForm({ onGenerateTicket }) {
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
-    /* Object.keys(newErrors) => Extracts the field names that have errors.
-    
-    .length === 0 => Checks if there are no errors. If length === 0, the form is valid.
 
+    /* Object.keys(newErrors) => Extracts the field names that have errors.
+    .length === 0 => Checks if there are no errors. If length === 0, the form is valid.
     Return value => true → no errors (form valid, safe to submit). false → at least one error (form invalid, block submission).
     */
   };
@@ -74,9 +73,7 @@ function TicketForm({ onGenerateTicket }) {
 
     /* FileReader API => Converts file → Base64-encoded string (data URL).
     example: data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA...
-
     reader.onload callback, When file is fully read: Store the Base64 result in your form state:
-
     reader.readAsDataURL(file) => Actually starts reading the file as a data URL.
 
     ?. (optional chaining) → prevents errors if e.target is null or undefined.
