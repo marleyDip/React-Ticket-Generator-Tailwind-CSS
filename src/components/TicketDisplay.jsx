@@ -55,10 +55,24 @@ function TicketDisplay({ ticketData, onBack }) {
   };
 
   /* 
-    Generate PNG → toPng converts the ticket element to a Base64 PNG image.
-    Create a link → document.createElement("a") creates a hidden anchor.
-    Set download file name → using ticketData.fullName with spaces replaced by -.Click programmatically → triggers a download without user interaction.
-    Clean up → removes the link from the DOM after use. 
+    == appending/removing ensures better compatibility across browsers.
+    == .appendChild(link) → takes your <a> (anchor) element and inserts it into the body of the document as a child node. 
+    => So basically, you are temporarily adding the <a> tag into the page DOM.
+    
+    => You create a hidden <a> tag (document.createElement("a")).
+    => Add it to the DOM (appendChild).
+    => Trigger link.click() programmatically → downloads the file.
+    => Then clean up with: removeChild(link); (otherwise you'd keep adding hidden links every time).
+    
+    👉 So appendChild = "attach this new element to the page".
+  */
+
+  /* 
+    => Generate PNG → toPng converts the ticket element to a Base64 PNG image.
+    => Create a link → document.createElement("a") creates a hidden anchor.
+    => Set download file name → using ticketData.fullName with spaces replaced by -.
+    => Click programmatically → triggers a download without user interaction.
+    => Clean up → removes the link from the DOM after use. 
   */
 
   /* /\s+/g:
